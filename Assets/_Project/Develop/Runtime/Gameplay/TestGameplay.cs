@@ -10,8 +10,15 @@ using UnityEngine;
 
 namespace Assets._Project.Develop.Runtime.Gameplay
 {
+    public enum TestCharacterType
+    {
+        Rigidbody,
+        CharacterController
+    }
+
     public class TestGameplay : MonoBehaviour
     {
+        [SerializeField] private TestCharacterType _characterType;
         private DIContainer _container;
         private EntitiesFactory _entitiesFactory;
 
@@ -27,7 +34,16 @@ namespace Assets._Project.Develop.Runtime.Gameplay
 
         public void Run()
         {
-            _entity = _entitiesFactory.CreateGhost(Vector3.zero);
+            _entity = _characterType switch
+            {
+                TestCharacterType.Rigidbody =>
+                    _entitiesFactory.CreateRigidbodyCharacter(Vector3.zero),
+
+                TestCharacterType.CharacterController =>
+                    _entitiesFactory.CreateCharacterControllerCharacter(Vector3.zero),
+
+                _ => _entitiesFactory.CreateRigidbodyCharacter(Vector3.zero)
+            };
 
             _isRunning = true;
         }

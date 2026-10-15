@@ -1,6 +1,7 @@
 ﻿using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore.Mono;
 using Assets._Project.Develop.Runtime.Gameplay.Features.LifeCycle;
 using Assets._Project.Develop.Runtime.Gameplay.Features.MovementFeature;
+using Assets._Project.Develop.Runtime.Gameplay.Features.RotationFeature;
 using Assets._Project.Develop.Runtime.Infrastructure.DI;
 using Assets._Project.Develop.Runtime.Utilities.Reactive;
 using UnityEngine;
@@ -47,5 +48,51 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
         }
 
         private Entity CreateEmpty() => new Entity();
+
+        // Персонаж 1: движение и поворот через Rigidbody
+        public Entity CreateRigidbodyCharacter(Vector3 position)
+        {
+            Entity entity = CreateEmpty();
+
+            _monoEntitiesFactory.Create(entity, position, "Entities/RigidbodyCharacter");
+
+            AddCharacterData(entity);
+
+            entity
+                .AddSystem(new RigidbodyMovementSystem())
+                .AddSystem(new RigidbodyRotationSystem());
+
+            _entitiesLifeContext.Add(entity);
+
+            return entity;
+        }
+
+        // Персонаж 2: движение через CharacterController, поворот через transform
+        public Entity CreateCharacterControllerCharacter(Vector3 position)
+        {
+            Entity entity = CreateEmpty();
+
+            _monoEntitiesFactory.Create(entity, position, "Entities/CharacterControllerCharacter");
+
+            AddCharacterData(entity);
+
+            entity
+                .AddSystem(new CharacterControllerMovementSystem())
+                .AddSystem(new TransformRotationSystem());
+
+            _entitiesLifeContext.Add(entity);
+
+            return entity;
+        }
+
+        // Данные у обоих персонажей ОДИНАКОВЫЕ. Отличаются только системы.
+        private Entity AddCharacterData(Entity entity)
+        {
+            return entity
+                .AddMoveDirection()
+                .AddMoveSpeed(new ReactiveVariable<float>(10))
+                .AddRotationDirection()
+                .AddRotationSpeed(new ReactiveVariable<float>(720));
+        }
     }
 }

@@ -136,12 +136,29 @@ namespace Assets._Project.Develop.Editor
             return str;
         }
 
+
         private static IEnumerable<Type> GetComponentTypesFrom(Assembly assembly)
         {
-            return assembly
+            var components = assembly
                 .GetTypes()
-                .Where(type => type.IsInterface == false && type.IsAbstract == false && typeof(IEntityComponent).IsAssignableFrom(type));
+                .Where(type =>
+                    type.IsInterface == false &&
+                    type.IsAbstract == false &&
+                    typeof(IEntityComponent).IsAssignableFrom(type))
+                .ToList();
+
+            foreach (var component in components)
+            {
+                if (component.Name == "RotationDirection" ||
+                    component.Name == "RotationSpeed")
+                {
+                    Debug.Log($"[EntityAPI Generator] Found component: {component.FullName}");
+                }
+            }
+
+            return components;
         }
+
 
         public static string GetVariableNameFrom(string name) => char.ToLowerInvariant(name[0]) + name.Substring(1);
 
